@@ -9,6 +9,8 @@ export type AppState = {
 
 const api = createApiClient();
 
+
+
 export class App extends React.PureComponent<{}, AppState> {
 
 	state: AppState = {
@@ -23,20 +25,25 @@ export class App extends React.PureComponent<{}, AppState> {
 		});
 	}
 
-	renderTickets = (tickets: Ticket[]) => {
 
+	
+	renderTickets = (tickets: Ticket[]) => {
 		const filteredTickets = tickets
 			.filter((t) => (t.title.toLowerCase() + t.content.toLowerCase()).includes(this.state.search.toLowerCase()));
 
-
 		return (<ul className='tickets'>
-			{filteredTickets.map((ticket) => (<li key={ticket.id} className='ticket'>
+			{filteredTickets.map((ticket) => (
+				<li key={ticket.id} className='ticket'>
 				<h5 className='title'>{ticket.title}</h5>
+
+				<h5 className='content'>{ticket.content}</h5>
 				<footer>
 					<div className='meta-data'>By {ticket.userEmail} | { new Date(ticket.creationTime).toLocaleString()}</div>
 				</footer>
-			</li>))}
-		</ul>);
+				</li>
+				))}
+		</ul>
+		);
 	}
 
 	onSearch = async (val: string, newPage?: number) => {
@@ -52,7 +59,6 @@ export class App extends React.PureComponent<{}, AppState> {
 
 	render() {	
 		const {tickets} = this.state;
-
 		return (<main>
 			<h1>Tickets List</h1>
 			<header>
