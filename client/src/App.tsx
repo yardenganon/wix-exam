@@ -32,13 +32,19 @@ export class App extends React.PureComponent<{}, AppState> {
 	renderTickets = (tickets: Ticket[]) => {
 		const filteredTickets = tickets
 			.filter((t) =>  (t.title.toLowerCase() + t.content.toLowerCase()).includes(this.state.search.toLowerCase()) && !this.state.hiddenTickets.includes(t.id));
-
+		
 		return (<ul className='tickets'>
 			{filteredTickets.map((ticket) => (
 				<li key={ticket.id} className='ticket'>
 				<button className='hide-btn' onClick={() => this.hideTicket(ticket.id)}>Hide</button>
 				<h5 className='title'>{ticket.title}</h5>
 				<h5 className='content'>{ticket.content}</h5>
+				<ul className='labels'>
+					{ticket.labels && ticket.labels.map((label) => (
+						<button className='label'>{label}</button>
+					))}
+					
+				</ul>
 				<footer>
 					<div className='meta-data'>By {ticket.userEmail} | { new Date(ticket.creationTime).toLocaleString()}</div>
 				</footer>

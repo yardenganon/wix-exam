@@ -117,6 +117,27 @@ body {
         color: #fff;
         padding-right: initial;
       }
+      .labels {
+        display: inherit;
+        justify-content: flex-end;
+        .label {
+          display: inherit;
+          border: none;
+          border: 0.5px solid rgb(175, 224, 255);
+          outline: none;
+          justify-content: flex-end;
+          padding-left: 3%;
+          padding-right: 3%;
+          margin: 0%;
+          margin-top: 1%;
+          margin-left: 2px;
+          margin-right: 2px;
+          background: rgb(216, 240, 255);
+          font-size: 11px;
+          color: #20455e;
+          border-radius: 4px;
+        }
+      }
       footer {
         display: flex;
         justify-content: space-between;
