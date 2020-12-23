@@ -22,10 +22,21 @@ app.get('/api/tickets', (req, res) => {
 
 	const page = req.query.page || 1;
 
-	const paginatedData = tempData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-	
-	res.send(paginatedData);
+	if (req.query.search) {
+		var paginatedData = tempData.filter((t) => (t.title.toLocaleLowerCase() + t.content.toLocaleLowerCase()).includes(req.query.search));
+		const results = paginatedData.length;
+		const pages = Math.ceil(paginatedData.length / PAGE_SIZE);
+		paginatedData = paginatedData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+		res.send({ tickets: paginatedData, pagesNumber: pages, overallResults: results});
+	}
+	else {
+		const results = tempData.length;
+		const paginatedData = tempData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+		const pages = Math.ceil(tempData.length / PAGE_SIZE);
+		res.send({ tickets: paginatedData, pagesNumber: pages, overallResults: results});
+	}
 });
+
 
 app.listen(PORT);
 console.log('server running', PORT)

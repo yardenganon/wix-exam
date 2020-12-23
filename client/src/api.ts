@@ -1,5 +1,12 @@
 import axios from 'axios';
 
+// Want to get number of pages available
+type Response = {
+	tickets: Ticket[],
+	pagesNumber: number,
+	overallResults: number
+} 
+
 export type Ticket = {
 	id: string,
 	title: string;
@@ -10,13 +17,19 @@ export type Ticket = {
 }
 
 export type ApiClient = {
-	getTickets: () => Promise<Ticket[]>;
+	getTickets: (search: string, pageNumber?: number) => Promise<Response>,
 }
 
 export const createApiClient = (): ApiClient => {
 	return {
-		getTickets: () => {
-			return axios.get(`http://localhost:3232/api/tickets`).then((res) => res.data);
+		getTickets: async (search, pageNumber = 1) => {
+			const data = axios.get(`http://localhost:3232/api/tickets`, {
+				params: {
+					search: search,
+					page: pageNumber
+				}
+			}).then((res) => { return res.data;});
+			return data;
 		}
 	}
 }

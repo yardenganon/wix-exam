@@ -1,102 +1,180 @@
 import React from 'react';
 import './App.scss';
-import {createApiClient, Ticket} from './api';
+import { createApiClient, Ticket } from './api';
 
 export type AppState = {
-	tickets?: Ticket[],
-	search: string,
-	hiddenTickets: string[];
-}
+  tickets?: Ticket[];
+  search: string;
+  hiddenTickets: string[];
+  pagesNumber: number;
+  overallResults: number;
+};
 
 const api = createApiClient();
 
-
-
 export class App extends React.PureComponent<{}, AppState> {
+  state: AppState = {
+    search: '',
+    hiddenTickets: [],
+    pagesNumber: 1,
+    overallResults: 200,
+  };
 
-	state: AppState = {
-		search: '',
-		hiddenTickets: []
-	}
+  searchDebounce: any = null;
 
-	searchDebounce: any = null;
+  async componentDidMount() {
+    const { search } = this.state;
+    const { tickets, pagesNumber, overallResults } = await api.getTickets(
+      search
+    );
+    this.setState({
+      tickets: tickets,
+      pagesNumber: pagesNumber,
+      overallResults: overallResults,
+    });
+  }
 
-	async componentDidMount() {
-		this.setState({
-			tickets: await api.getTickets()
-		});
-	}
+  renderTickets = (tickets: Ticket[]) => {
+    const filteredTickets = tickets.filter(
+      (t) => !this.state.hiddenTickets.includes(t.id)
+    );
+    // Search has been transfered to the server-side
 
-	
-	
-	renderTickets = (tickets: Ticket[]) => {
-		const filteredTickets = tickets
-			.filter((t) =>  (t.title.toLowerCase() + t.content.toLowerCase()).includes(this.state.search.toLowerCase()) && !this.state.hiddenTickets.includes(t.id));
-		
-		return (<ul className='tickets'>
-			{filteredTickets.map((ticket) => (
-				<li key={ticket.id} className='ticket'>
-				<button className='hide-btn' onClick={() => this.hideTicket(ticket.id)}>Hide</button>
-				<h5 className='title'>{ticket.title}</h5>
-				<h5 className='content'>{ticket.content}</h5>
-				<ul className='labels'>
-					{ticket.labels && ticket.labels.map((label) => (
-						<button className='label'>{label}</button>
-					))}
-					
-				</ul>
-				<footer>
-					<div className='meta-data'>By {ticket.userEmail} | { new Date(ticket.creationTime).toLocaleString()}</div>
-				</footer>
-				</li>
-				))}
-		</ul>
-		);
-	}
+    return (
+      <ul className='tickets'>
+        {filteredTickets.map((ticket) => (
+          <li key={ticket.id} className='ticket'>
+            <div className='hide-btn-container'>
+              <button
+                className='hide-btn'
+                onClick={() => this.hideTicket(ticket.id)}
+              >
+                Hide
+              </button>
+            </div>
+            <h5 className='title'>{ticket.title}</h5>
+            <h5 className='content'>{ticket.content}</h5>
+            <ul className='labels'>
+              {ticket.labels &&
+                ticket.labels.map((label) => (
+                  <button className='label'>{label}</button>
+                ))}
+            </ul>
+            <footer>
+              <div className='meta-data'>
+                By {ticket.userEmail} |{' '}
+                {new Date(ticket.creationTime).toLocaleString()}
+              </div>
+            </footer>
+          </li>
+        ))}
+      </ul>
+    );
+  };
 
-	hideTicket = async (ticketId : string) => {
-		this.setState({
-			hiddenTickets: [...this.state.hiddenTickets, ticketId]
-		});	
-	}
+  hideTicket = async (ticketId: string) => {
+    this.setState({
+      hiddenTickets: [...this.state.hiddenTickets, ticketId],
+    });
+  };
 
-	restoreTickets = async () => {
-		this.setState({
-			hiddenTickets: []
-		});
-	}
+  restoreTickets = async () => {
+    this.setState({
+      hiddenTickets: [],
+    });
+  };
 
-	onSearch = async (val: string, newPage?: number) => {
-		clearTimeout(this.searchDebounce);
+  onSearch = async (val: string, newPage?: number) => {
+    clearTimeout(this.searchDebounce);
 
-		this.searchDebounce = setTimeout(async () => {
-			this.setState({
-				search: val
-			});
-		}, 300);
-	}
+    this.searchDebounce = setTimeout(async () => {
+      const { tickets, pagesNumber, overallResults } = await api.getTickets(
+        val
+      );
 
-	render() {	
-		const {tickets} = this.state;
-		let resultsTitle;
+      this.setState({
+        tickets: tickets,
+        pagesNumber: pagesNumber,
+        search: val,
+        overallResults: overallResults,
+      });
+    }, 300);
+  };
 
-		if (tickets) {
-			resultsTitle = this.state.hiddenTickets.length > 0 ? <div className='results'>Showing {tickets.length} results <i>({this.state.hiddenTickets.length} hidden tickets -<button className="restore-btn" onClick={() => this.restoreTickets()}>restore</button>)</i></div> :
-			<div className='results'>Showing {tickets.length} results</div>;
-		} else {
-			resultsTitle = null;
-		}
-		
+  getButtons = (pagesNumber: number) => {
+    let buttons = [];
+    for (let i = 1; i <= pagesNumber; i++) {
+      buttons.push(
+        <button
+          className='nav-btn'
+          onClick={() => {
+            this.getPageData(i, this.state.search);
+          }}
+        >
+          {i}
+        </button>
+      );
+    }
+    return buttons;
+  };
 
-		return (<main>
-			<h1>Tickets List</h1>
-			<header>
-				<input type="search" placeholder="Search..." onChange={(e) => this.onSearch(e.target.value)}/>
-			</header>
-			{resultsTitle}
-			{tickets ? this.renderTickets(tickets) : <h2>Loading..</h2>}
-		</main>)
-	}
+  getPageData = async (pageNumber: number, search: string) => {
+    const { tickets, pagesNumber, overallResults } = await api.getTickets(
+      search,
+      pageNumber
+    );
+    this.setState({
+      tickets: tickets,
+      pagesNumber: pagesNumber,
+      overallResults: overallResults,
+    });
+  };
+
+  render() {
+    const { tickets, pagesNumber, overallResults } = this.state;
+
+    let resultsTitle;
+
+    if (tickets) {
+      resultsTitle =
+        this.state.hiddenTickets.length > 0 ? (
+          <div className='results'>
+            Showing {overallResults} results{' '}
+            <i>
+              ({this.state.hiddenTickets.length} hidden tickets -{' '}
+              <button
+                className='restore-btn'
+                onClick={() => this.restoreTickets()}
+              >
+                restore
+              </button>
+              )
+            </i>
+          </div>
+        ) : (
+          <div className='results'>Showing {overallResults} results</div>
+        );
+    } else {
+      resultsTitle = null;
+    }
+
+    return (
+      <main>
+        <h1>Tickets List</h1>
+        <header>
+          <input
+            type='search'
+            placeholder='Search...'
+            onChange={(e) => this.onSearch(e.target.value)}
+          />
+        </header>
+        <div className='results'>Pages</div>
+        <ul className='nav'>{this.getButtons(pagesNumber)}</ul>
+        {resultsTitle}
+        {tickets ? this.renderTickets(tickets) : <h2>Loading..</h2>}
+      </main>
+    );
+  }
 }
 
 export default App;

@@ -14,7 +14,28 @@ body {
   h1 {
     font-weight: 300;
   }
-
+  .nav {
+    display: inline;
+    margin: 0%;
+    padding: 0%;
+  }
+  .nav-btn {
+    display: inherit;
+    border: none;
+    border: 0.5px solid rgb(175, 224, 255);
+    outline: none;
+    justify-content: flex-end;
+    padding-left: 1%;
+    padding-right: 1%;
+    margin: 0%;
+    margin-top: 1%;
+    margin-left: 0px;
+    margin-right: 10px;
+    background: rgb(216, 240, 255);
+    font-size: 11px;
+    color: #20455e;
+    border-radius: 4px;
+  }
   .results {
     color: #7a92a5;
     font-size: 12px;
@@ -28,6 +49,7 @@ body {
     outline: none;
     background: none;
     color: #3366bb;
+    display: contents;
   }
   header {
     width: 100%;
@@ -107,15 +129,27 @@ body {
         font-style: normal;
         color: #7a92a5;
       }
+      .hide-btn-container {
+        position: relative;
+        float: right;
+        top: 2px;
+      }
       .hide-btn {
-        display: inherit;
+        display: absolute;
         outline: none;
-        justify-content: flex-end;
         font-size: 12px;
         border: none;
         background: none;
         color: #fff;
-        padding-right: initial;
+        width: fit-content;
+        right: 10px;
+        float: right;
+      }
+      .collapseButton {
+        border: none;
+        outline: none;
+        background: none;
+        color: #3366bb;
       }
       .labels {
         display: inherit;
