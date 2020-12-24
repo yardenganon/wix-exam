@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// Want to get number of pages available
+// Want to get number of pages available and overall results
 type Response = {
 	tickets: Ticket[],
 	pagesNumber: number,
@@ -9,15 +9,17 @@ type Response = {
 
 export type Ticket = {
 	id: string,
-	title: string;
-	content: string;
-	creationTime: number;
-	userEmail: string;
-	labels?: string[];
+	title: string,
+	content: string,
+	creationTime: number,
+	userEmail: string,
+	labels?: string[],
+	priority: string,
 }
 
 export type ApiClient = {
 	getTickets: (search: string, pageNumber?: number) => Promise<Response>,
+	setPriority: (ticketId: string, priority: string) => Promise<void>,
 }
 
 export const createApiClient = (): ApiClient => {
@@ -30,6 +32,14 @@ export const createApiClient = (): ApiClient => {
 				}
 			}).then((res) => { return res.data;});
 			return data;
+		},
+		setPriority: async (ticketId, priority) => {
+			const data = axios.put('http://localhost:3232/api/tickets/changePriority', {
+				body: {
+					ticketId: ticketId,
+					priority: priority
+				}
+			}).then((res) => {return res.data;})
 		}
 	}
 }

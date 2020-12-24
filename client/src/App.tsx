@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.scss';
 import { createApiClient, Ticket } from './api';
+import { setPriority } from 'os';
 
 export type AppState = {
   tickets?: Ticket[];
@@ -38,7 +39,7 @@ export class App extends React.PureComponent<{}, AppState> {
     const filteredTickets = tickets.filter(
       (t) => !this.state.hiddenTickets.includes(t.id)
     );
-    // Search has been transfered to the server-side
+    // Search has been transfered to the back-end
 
     return (
       <ul className='tickets'>
@@ -51,6 +52,18 @@ export class App extends React.PureComponent<{}, AppState> {
               >
                 Hide
               </button>
+              <div>
+                <h5>Priority</h5>
+                <button onClick={() => this.setPriority(ticket, 'low')}>
+                  Low
+                </button>
+                <button onClick={() => this.setPriority(ticket, 'none')}>
+                  None
+                </button>
+                <button onClick={() => this.setPriority(ticket, 'high')}>
+                  High
+                </button>
+              </div>
             </div>
             <h5 className='title'>{ticket.title}</h5>
             <h5 className='content'>{ticket.content}</h5>
@@ -70,6 +83,19 @@ export class App extends React.PureComponent<{}, AppState> {
         ))}
       </ul>
     );
+  };
+
+  setPriority = async (ticket: Ticket, priority: string) => {
+    await api.setPriority(ticket.id, priority);
+
+    const newTickets = this.state.tickets?.map(t => {
+     return t.id === ticket.id ? { ...t, priority } : t
+    }
+    );
+
+    this.setState({
+      tickets: newTickets,
+    });
   };
 
   hideTicket = async (ticketId: string) => {
