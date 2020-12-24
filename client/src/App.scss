@@ -25,16 +25,48 @@ body {
     border: 0.5px solid rgb(175, 224, 255);
     outline: none;
     justify-content: flex-end;
-    padding-left: 1%;
-    padding-right: 1%;
+    padding: 5px;
+    padding-right: 15px;
+    padding-left: 15px;
     margin: 0%;
-    margin-top: 1%;
+
     margin-left: 0px;
     margin-right: 10px;
-    background: rgb(216, 240, 255);
+    background: #00316e;
     font-size: 11px;
-    color: #20455e;
+    color: #fff;
     border-radius: 4px;
+    &:hover {
+      background: #244f83;
+      box-shadow: 0 2px 6px 1px #d3d7da;
+    }
+  }
+  .priority-btns {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    .priority-btn {
+      display: inherit;
+      border: none;
+      border: 0.5px solid rgb(175, 224, 255);
+      outline: none;
+      justify-content: flex-end;
+      padding: 5px;
+      padding-left: 5%;
+      padding-right: 5%;
+      margin: 0%;
+      margin-top: 1%;
+      margin-left: 2px;
+      margin-right: 2px;
+      background: #00316e;
+      font-size: 11px;
+      color: #fff;
+      border-radius: 4px;
+      &:hover {
+        background: #244f83;
+        box-shadow: 0 2px 6px 1px #d3d7da;
+      }
+    }
   }
   .results {
     color: #7a92a5;
@@ -106,11 +138,82 @@ body {
       padding: 10px 20px;
       transition: box-shadow 0.2s ease-in-out;
       position: relative;
+      .priority-btns {
+        display: none;
+        margin: 0;
+        padding: 0;
+        .priority-btn {
+          display: inline;
+          border: none;
+          border: 0.5px solid #bbf5ff;
+          outline: none;
+          justify-content: flex-end;
+          padding-left: 3%;
+          padding-right: 3%;
+          margin: 0%;
+          margin-top: 1%;
+          margin-right: 12px;
+          background: #00316e;
+          font-size: 11px;
+          color: #fff;
+          border-radius: 4px;
+          &:hover {
+            background: #244f83;
+            box-shadow: 0 2px 6px 1px #d3d7da;
+          }
+        }
+      }
+
+      .red {
+        background-color: #ffcccb;
+        width: 100%;
+        flex-shrink: 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px 1px #e1e5e8;
+        margin-bottom: 14px;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #fff;
+        padding: 10px 20px;
+        transition: box-shadow 0.2s ease-in-out;
+        position: relative;
+      }
+      .green {
+        background-color: #cdffcc;
+        width: 100%;
+        flex-shrink: 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px 1px #e1e5e8;
+        margin-bottom: 14px;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #fff;
+        padding: 10px 20px;
+        transition: box-shadow 0.2s ease-in-out;
+        position: relative;
+      }
+      .white {
+        background-color: #fff;
+        width: 100%;
+        flex-shrink: 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px 1px #e1e5e8;
+        margin-bottom: 14px;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #fff;
+        padding: 10px 20px;
+        transition: box-shadow 0.2s ease-in-out;
+        position: relative;
+      }
 
       &:hover {
         box-shadow: 0 2px 6px 1px #d3d7da;
         .hide-btn {
-          color: #20455e; // On hover, color is changing. IDK if it is a best practice but it works.
+          visibility: visible;
+        }
+        .priority-btns {
+          display: flex;
         }
       }
 
@@ -135,12 +238,13 @@ body {
         top: 2px;
       }
       .hide-btn {
-        display: absolute;
+        visibility: hidden;
+        display: flex;
         outline: none;
         font-size: 12px;
         border: none;
         background: none;
-        color: #fff;
+        color: #20455e;
         width: fit-content;
         right: 10px;
         float: right;

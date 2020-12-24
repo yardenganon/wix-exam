@@ -1,7 +1,6 @@
 import React from 'react';
 import './App.scss';
 import { createApiClient, Ticket } from './api';
-import { setPriority } from 'os';
 
 export type AppState = {
   tickets?: Ticket[];
@@ -9,6 +8,7 @@ export type AppState = {
   hiddenTickets: string[];
   pagesNumber: number;
   overallResults: number;
+  priority: string
 };
 
 const api = createApiClient();
@@ -19,6 +19,7 @@ export class App extends React.PureComponent<{}, AppState> {
     hiddenTickets: [],
     pagesNumber: 1,
     overallResults: 200,
+    priority: 'all'
   };
 
   searchDebounce: any = null;
@@ -26,7 +27,9 @@ export class App extends React.PureComponent<{}, AppState> {
   async componentDidMount() {
     const { search } = this.state;
     const { tickets, pagesNumber, overallResults } = await api.getTickets(
-      search
+      search,
+      1,
+      this.state.priority
     );
     this.setState({
       tickets: tickets,
@@ -40,30 +43,29 @@ export class App extends React.PureComponent<{}, AppState> {
       (t) => !this.state.hiddenTickets.includes(t.id)
     );
     // Search has been transfered to the back-end
-
     return (
       <ul className='tickets'>
         {filteredTickets.map((ticket) => (
-          <li key={ticket.id} className='ticket'>
+          <li
+            key={ticket.id}
+            className='ticket'
+            style={
+              ticket.priority === 'high'
+                ? { backgroundColor: '#ffe8e8' }
+                : ticket.priority === 'none'
+                ? { backgroundColor: '#fff' }
+                : { backgroundColor: '#ebffef' }
+            }
+          >
             <div className='hide-btn-container'>
               <button
                 className='hide-btn'
+                /*style={
+                  ticket.priority === 'high' ? {color: "#ffe8e8"} : ticket.priority === 'none' ? {color: "#fff"} : { color: "#ebffef"}} */
                 onClick={() => this.hideTicket(ticket.id)}
               >
                 Hide
               </button>
-              <div>
-                <h5>Priority</h5>
-                <button onClick={() => this.setPriority(ticket, 'low')}>
-                  Low
-                </button>
-                <button onClick={() => this.setPriority(ticket, 'none')}>
-                  None
-                </button>
-                <button onClick={() => this.setPriority(ticket, 'high')}>
-                  High
-                </button>
-              </div>
             </div>
             <h5 className='title'>{ticket.title}</h5>
             <h5 className='content'>{ticket.content}</h5>
@@ -79,19 +81,38 @@ export class App extends React.PureComponent<{}, AppState> {
                 {new Date(ticket.creationTime).toLocaleString()}
               </div>
             </footer>
+            <div>
+                <div className='priority-btns'>
+                <button className='priority-btn' onClick={() => this.setTicketPriority(ticket, 'low')}>
+                  Low
+                </button>
+                <button className='priority-btn' onClick={() => this.setTicketPriority(ticket, 'none')}>
+                  None
+                </button>
+                <button className='priority-btn' onClick={() => this.setTicketPriority(ticket, 'high')}>
+                  High
+                </button>
+                </div>
+              </div>
           </li>
         ))}
       </ul>
     );
   };
 
-  setPriority = async (ticket: Ticket, priority: string) => {
+  setTicketPriority = async (ticket: Ticket, priority: string) => {
+
     await api.setPriority(ticket.id, priority);
 
-    const newTickets = this.state.tickets?.map(t => {
-     return t.id === ticket.id ? { ...t, priority } : t
+    let newTickets = this.state.tickets ? [...this.state.tickets] : [];
+    
+    if (newTickets) {
+      for (var t of newTickets) {
+        if (t.id === ticket.id) {
+          t.priority = priority;
+        }
+      }
     }
-    );
 
     this.setState({
       tickets: newTickets,
@@ -115,7 +136,9 @@ export class App extends React.PureComponent<{}, AppState> {
 
     this.searchDebounce = setTimeout(async () => {
       const { tickets, pagesNumber, overallResults } = await api.getTickets(
-        val
+        val,
+        1,
+        this.state.priority
       );
 
       this.setState({
@@ -134,7 +157,7 @@ export class App extends React.PureComponent<{}, AppState> {
         <button
           className='nav-btn'
           onClick={() => {
-            this.getPageData(i, this.state.search);
+            this.getPageData(i, this.state.search, this.state.priority);
           }}
         >
           {i}
@@ -144,21 +167,23 @@ export class App extends React.PureComponent<{}, AppState> {
     return buttons;
   };
 
-  getPageData = async (pageNumber: number, search: string) => {
+  getPageData = async (pageNumber: number, search: string, priority : string) => {
     const { tickets, pagesNumber, overallResults } = await api.getTickets(
       search,
-      pageNumber
+      pageNumber,
+      priority
     );
     this.setState({
       tickets: tickets,
       pagesNumber: pagesNumber,
       overallResults: overallResults,
+      priority: priority
     });
   };
 
   render() {
     const { tickets, pagesNumber, overallResults } = this.state;
-
+    console.log('RENDER');
     let resultsTitle;
 
     if (tickets) {
@@ -194,6 +219,13 @@ export class App extends React.PureComponent<{}, AppState> {
             onChange={(e) => this.onSearch(e.target.value)}
           />
         </header>
+        <div className='results'>Select priority</div>
+        <div className='priority-btns'>
+          <button className='priority-btn' onClick={() => this.getPageData(1,this.state.search, 'all')}>All</button>
+          <button className='priority-btn' onClick={() => this.getPageData(1,this.state.search, 'high')}>High priority</button>
+          <button className='priority-btn' onClick={() => this.getPageData(1,this.state.search, 'none')}>No priority</button>
+          <button className='priority-btn' onClick={() => this.getPageData(1,this.state.search, 'low')}>Low priority</button>
+        </div>
         <div className='results'>Pages</div>
         <ul className='nav'>{this.getButtons(pagesNumber)}</ul>
         {resultsTitle}

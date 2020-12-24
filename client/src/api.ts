@@ -18,28 +18,31 @@ export type Ticket = {
 }
 
 export type ApiClient = {
-	getTickets: (search: string, pageNumber?: number) => Promise<Response>,
+	getTickets: (search: string, pageNumber?: number, priority?: string) => Promise<Response>,
 	setPriority: (ticketId: string, priority: string) => Promise<void>,
 }
 
 export const createApiClient = (): ApiClient => {
 	return {
-		getTickets: async (search, pageNumber = 1) => {
+		getTickets: async (search, pageNumber = 1, priority = 'all') => {
 			const data = axios.get(`http://localhost:3232/api/tickets`, {
 				params: {
 					search: search,
-					page: pageNumber
+					page: pageNumber,
+					priority: priority
 				}
 			}).then((res) => { return res.data;});
 			return data;
 		},
 		setPriority: async (ticketId, priority) => {
-			const data = axios.put('http://localhost:3232/api/tickets/changePriority', {
-				body: {
+			try {
+				axios.put('http://localhost:3232/api/tickets/changePriority', {
 					ticketId: ticketId,
 					priority: priority
-				}
-			}).then((res) => {return res.data;})
+				})
+			} catch (e) {
+				console.log(e);
+			}
 		}
 	}
 }

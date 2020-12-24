@@ -28,9 +28,9 @@ app.get('/api/tickets', (req, res) => {
 
   const page = req.query.page || 1;
 
-  if (req.body && req.body.priority) {
+  if (req.query && req.query.priority && req.query.priority != 'all') {
     paginatedData = paginatedData.filter(
-      (t) => t.priority === req.body.priority
+      (t) => t.priority === req.query.priority
     );
   }
 
@@ -77,9 +77,8 @@ app.get('/api/tickets', (req, res) => {
  * Body - 'ticketId' - ticket id, 'priority' - update ticket priority with 'low'/'high'/'none'.
  */
 app.put('/api/tickets/changePriority', (req, res) => {
-	
-  // Priorities: high, low, none;
 
+  // Priorities: high, low, none;
   if (req.body && req.body.ticketId && req.body.priority) {
     const file = fs.readFileSync('./data.json', { encoding: 'utf8' });
     const data = JSON.parse(file);
@@ -94,7 +93,7 @@ app.put('/api/tickets/changePriority', (req, res) => {
   } else {
     res.status(400);
   }
-  //res.send(data);
+  res.send("OK");
 });
 
 app.listen(PORT);
