@@ -3,6 +3,7 @@ import bodyParser = require('body-parser');
 import { tempData } from './temp-data';
 
 import fs from 'fs';
+import { monitorEventLoopDelay } from 'perf_hooks';
 
 const app = express();
 
@@ -25,7 +26,6 @@ app.use((_, res, next) => {
  */
 app.get('/api/tickets', (req, res) => {
   var paginatedData = tempData;
-
   const page = req.query.page || 1;
 
   if (req.query && req.query.priority && req.query.priority != 'all') {
@@ -35,7 +35,30 @@ app.get('/api/tickets', (req, res) => {
   }
 
   if (req.query.search) {
-    const searchWord = String(req.query.search).toLocaleLowerCase();
+	let searchWord = String(req.query.search).toLocaleLowerCase();
+	if (searchWord.slice(0,6) === 'after:' ) {
+		let {wordToSearch, first} = tokenize(searchWord,6);
+		searchWord = wordToSearch;
+		let [month,day,year] = first.split("/");
+		const epoch = Date.UTC(+year, +month-1, +day, 0, 0);
+		paginatedData = paginatedData.filter(
+			(t) => t.creationTime > epoch
+		  );
+	} else if (searchWord.slice(0,7) === 'before:') {
+		let {wordToSearch, first} = tokenize(searchWord,7);
+		searchWord = wordToSearch;
+		let [month,day,year] = first.split("/");
+		const epoch = Date.UTC(+year, +month-1, +day, 0, 0);
+		paginatedData = paginatedData.filter(
+			(t) => t.creationTime < epoch
+		  );
+	} else if (searchWord.slice(0,5) === 'from:') {
+		let {wordToSearch, first} = tokenize(searchWord,5);
+		searchWord = wordToSearch;
+		paginatedData = paginatedData.filter(
+			(t) => t.userEmail === first
+		  );
+	}
     paginatedData = paginatedData.filter((t) => {
       let labels = '';
       t.labels?.forEach((l) => (labels = labels + l));
@@ -95,6 +118,13 @@ app.put('/api/tickets/changePriority', (req, res) => {
   }
   res.send("OK");
 });
+
+const tokenize = (word: string, number: number)=> {
+		let wordToSearch = word.substr(number,word.length);
+		let [first] = wordToSearch.split(" ");
+		wordToSearch = wordToSearch.substr(first.length+1,wordToSearch.length);
+		return {wordToSearch, first}
+};
 
 app.listen(PORT);
 console.log('server running', PORT);
