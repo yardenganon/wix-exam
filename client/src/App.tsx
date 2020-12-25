@@ -60,8 +60,6 @@ export class App extends React.PureComponent<{}, AppState> {
             <div className='hide-btn-container'>
               <button
                 className='hide-btn'
-                /*style={
-                  ticket.priority === 'high' ? {color: "#ffe8e8"} : ticket.priority === 'none' ? {color: "#fff"} : { color: "#ebffef"}} */
                 onClick={() => this.hideTicket(ticket.id)}
               >
                 Hide
@@ -84,13 +82,15 @@ export class App extends React.PureComponent<{}, AppState> {
             <div>
                 <div className='priority-btns'>
                 <button className='priority-btn' onClick={() => this.setTicketPriority(ticket, 'low')}>
-                  Low
-                </button>
+                   <i className="fas fa-chevron-down"></i> 
+                 </button>
                 <button className='priority-btn' onClick={() => this.setTicketPriority(ticket, 'none')}>
-                  None
+                  <i className="fas fa-times"></i>
                 </button>
                 <button className='priority-btn' onClick={() => this.setTicketPriority(ticket, 'high')}>
-                  High
+                <div>
+                  <i className="fas fa-chevron-up"></i>    
+                </div>
                 </button>
                 </div>
               </div>
@@ -190,7 +190,10 @@ export class App extends React.PureComponent<{}, AppState> {
       resultsTitle =
         this.state.hiddenTickets.length > 0 ? (
           <div className='results'>
-            Showing {overallResults} results{' '}
+            Showing {overallResults} results ({
+            this.state.priority === 'all' ? 'all' : this.state.priority === 'high' ? 'high priority' : 
+            this.state.priority === 'low' ? 'low priority' : 'no priority'
+          }) {' '}
             <i>
               ({this.state.hiddenTickets.length} hidden tickets -{' '}
               <button
@@ -203,12 +206,15 @@ export class App extends React.PureComponent<{}, AppState> {
             </i>
           </div>
         ) : (
-          <div className='results'>Showing {overallResults} results</div>
+          <div className='results'>Showing {overallResults} results ({
+            this.state.priority === 'all' ? 'all' : this.state.priority === 'high' ? 'high priority' : 
+            this.state.priority === 'low' ? 'low priority' : 'no priority'
+          })</div>
         );
     } else {
       resultsTitle = null;
     }
-
+    
     return (
       <main>
         <h1>Tickets List</h1>
@@ -222,9 +228,10 @@ export class App extends React.PureComponent<{}, AppState> {
         <div className='results'>Select priority</div>
         <div className='priority-btns'>
           <button className='priority-btn' onClick={() => this.getPageData(1,this.state.search, 'all')}>All</button>
-          <button className='priority-btn' onClick={() => this.getPageData(1,this.state.search, 'high')}>High priority</button>
-          <button className='priority-btn' onClick={() => this.getPageData(1,this.state.search, 'none')}>No priority</button>
-          <button className='priority-btn' onClick={() => this.getPageData(1,this.state.search, 'low')}>Low priority</button>
+          <button className='priority-btn' onClick={() => this.getPageData(1,this.state.search, 'high')}>
+          <i className="fas fa-chevron-up"></i> High priority</button>
+          <button className='priority-btn' onClick={() => this.getPageData(1,this.state.search, 'none')}><i className="fas fa-times"></i> No priority</button>
+          <button className='priority-btn' onClick={() => this.getPageData(1,this.state.search, 'low')}><i className="fas fa-chevron-down"></i> Low priority</button>
         </div>
         <div className='results'>Pages</div>
         <ul className='nav'>{this.getButtons(pagesNumber)}</ul>
