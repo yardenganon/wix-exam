@@ -3,10 +3,8 @@ import bodyParser = require('body-parser');
 import { tempData } from './temp-data';
 
 import fs from 'fs';
-import { monitorEventLoopDelay } from 'perf_hooks';
 
 const app = express();
-
 const PORT = 3232;
 
 const PAGE_SIZE = 20;

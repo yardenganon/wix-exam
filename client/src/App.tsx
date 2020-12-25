@@ -70,7 +70,7 @@ export class App extends React.PureComponent<{}, AppState> {
             <ul className='labels'>
               {ticket.labels &&
                 ticket.labels.map((label) => (
-                  <button className='label'>{label}</button>
+                  <button key={ticket.id+label} className='label'>{label}</button>
                 ))}
             </ul>
             <footer>
@@ -155,6 +155,7 @@ export class App extends React.PureComponent<{}, AppState> {
     for (let i = 1; i <= pagesNumber; i++) {
       buttons.push(
         <button
+          key={i}
           className='nav-btn'
           onClick={() => {
             this.getPageData(i, this.state.search, this.state.priority);
@@ -183,7 +184,6 @@ export class App extends React.PureComponent<{}, AppState> {
 
   render() {
     const { tickets, pagesNumber, overallResults } = this.state;
-    console.log('RENDER');
     let resultsTitle;
 
     if (tickets) {
